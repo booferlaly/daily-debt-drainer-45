@@ -17,7 +17,7 @@ const AppHeader = () => {
       <div className="flex items-center">
         <Link to="/" className="flex items-center">
           <CircleDollarSign className="h-6 w-6 text-primary mr-2" />
-          <h1 className="text-xl font-bold">DailyDebtDreamer</h1>
+          <h1 className="text-xl font-bold">DailyDebtDrainer</h1>
         </Link>
       </div>
       

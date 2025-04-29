@@ -55,7 +55,7 @@ const AppSidebar = () => {
     <div className="min-h-screen w-64 border-r bg-card py-4 hidden md:block">
       <div className="px-3 py-2">
         <div className="mb-8 px-4">
-          <h2 className="text-lg font-semibold gradient-text">Daily Debt Dreamer</h2>
+          <h2 className="text-lg font-semibold gradient-text">Daily Debt Drainer</h2>
         </div>
         <nav className="space-y-1">
           {navItems.map((item) => (

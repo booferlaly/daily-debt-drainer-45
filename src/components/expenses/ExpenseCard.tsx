@@ -5,17 +5,21 @@ import {
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle 
+  CardTitle,
+  CardFooter
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 
 interface ExpenseCardProps {
   expense: Expense;
   currentUserId: string;
+  onSettle?: () => void;
 }
 
-const ExpenseCard = ({ expense, currentUserId }: ExpenseCardProps) => {
+const ExpenseCard = ({ expense, currentUserId, onSettle }: ExpenseCardProps) => {
   const isOwner = expense.paidBy === currentUserId;
   const formattedDate = new Date(expense.date).toLocaleDateString('en-US', {
     month: 'short',
@@ -29,6 +33,7 @@ const ExpenseCard = ({ expense, currentUserId }: ExpenseCardProps) => {
   
   let statusText = '';
   let statusColor = '';
+  let showSettleButton = false;
   
   if (isOwner) {
     const unpaidAmount = expense.participants
@@ -41,6 +46,7 @@ const ExpenseCard = ({ expense, currentUserId }: ExpenseCardProps) => {
     } else {
       statusText = `You are owed $${unpaidAmount.toFixed(2)}`;
       statusColor = 'bg-primary/10 text-primary';
+      showSettleButton = true;
     }
   } else {
     if (userPaid) {
@@ -49,6 +55,7 @@ const ExpenseCard = ({ expense, currentUserId }: ExpenseCardProps) => {
     } else {
       statusText = `You owe $${userAmount.toFixed(2)}`;
       statusColor = 'bg-debt/10 text-debt';
+      showSettleButton = true;
     }
   }
   
@@ -84,6 +91,19 @@ const ExpenseCard = ({ expense, currentUserId }: ExpenseCardProps) => {
           Split between {expense.participants.length} people
         </div>
       </CardContent>
+      {showSettleButton && onSettle && (
+        <CardFooter className="pt-2 pb-3">
+          <Button 
+            onClick={onSettle} 
+            variant="outline" 
+            size="sm" 
+            className="ml-auto flex gap-1"
+          >
+            <Check className="h-3 w-3" />
+            Mark as Settled
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };

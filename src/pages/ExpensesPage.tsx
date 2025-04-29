@@ -47,7 +47,7 @@ const ExpensesPage = () => {
       
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <Tabs defaultValue="all" className="w-full sm:w-auto">
-          <TabsList className="grid grid-cols-4 w-full sm:w-auto">
+          <TabsList className="grid grid-cols-4 w-full sm:w-auto text-xs">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="owed">They Owe</TabsTrigger>
             <TabsTrigger value="owe">You Owe</TabsTrigger>
@@ -57,10 +57,10 @@ const ExpensesPage = () => {
         
         <div className="flex gap-2 items-center">
           <Select>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] text-xs">
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="text-xs">
               <SelectItem value="all">All Categories</SelectItem>
               <SelectItem value="food">Food</SelectItem>
               <SelectItem value="housing">Housing</SelectItem>
@@ -70,10 +70,10 @@ const ExpensesPage = () => {
           </Select>
           
           <Select>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] text-xs">
               <SelectValue placeholder="Most Recent" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="text-xs">
               <SelectItem value="recent">Most Recent</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="highest">Highest Amount</SelectItem>

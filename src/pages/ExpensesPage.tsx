@@ -48,10 +48,10 @@ const ExpensesPage = () => {
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <Tabs defaultValue="all" className="w-full sm:w-auto">
           <TabsList className="grid grid-cols-4 w-full sm:w-auto text-xs">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="owed">They Owe</TabsTrigger>
-            <TabsTrigger value="owe">You Owe</TabsTrigger>
-            <TabsTrigger value="settled">Settled</TabsTrigger>
+            <TabsTrigger value="all" className="px-2 sm:px-3">All</TabsTrigger>
+            <TabsTrigger value="owed" className="px-2 sm:px-3">They Owe</TabsTrigger>
+            <TabsTrigger value="owe" className="px-2 sm:px-3">You Owe</TabsTrigger>
+            <TabsTrigger value="settled" className="px-2 sm:px-3">Settled</TabsTrigger>
           </TabsList>
         </Tabs>
         

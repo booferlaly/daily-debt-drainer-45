@@ -40,8 +40,7 @@ const BudgetOverview = ({ categories, totals }: BudgetOverviewProps) => {
               </div>
               <Progress 
                 value={Math.min((totals.actual / totals.planned) * 100, 100)} 
-                className="h-2" 
-                indicatorClassName={overBudget ? "bg-debt" : ""} 
+                className={`h-2 ${overBudget ? "bg-debt/30" : ""}`} 
               />
               <div className="flex justify-between text-xs mt-1">
                 <span>Spent: {totals.actual.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
@@ -77,8 +76,7 @@ const BudgetOverview = ({ categories, totals }: BudgetOverviewProps) => {
                     </div>
                     <Progress 
                       value={Math.min(percentUsed, 100)} 
-                      className="h-1" 
-                      indicatorClassName={isOverBudget ? "bg-debt" : ""}
+                      className={`h-1 ${isOverBudget ? "bg-debt/30" : ""}`}
                     />
                   </div>
                 );

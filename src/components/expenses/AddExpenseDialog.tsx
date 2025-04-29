@@ -7,12 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
-import { users, expenses } from '@/data/mockData';
+import { currentUser } from '@/data/mockData';
 import { v4 as uuidv4 } from 'uuid';
 
 type AddExpenseDialogProps = {
   onExpenseAdded: (newExpense: any) => void;
 };
+
+// Sample user data for dropdown
+const sampleUsers = [
+  { id: 'user-2', name: 'John Doe' },
+  { id: 'user-3', name: 'Jane Smith' },
+  { id: 'user-4', name: 'Mike Johnson' },
+];
 
 const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
   const { toast } = useToast();
@@ -44,7 +51,7 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
       participants: [
         { userId: 'user-1', name: 'You', amount: 0, paid: true },
         ...participants.map(userId => {
-          const user = users.find(u => u.id === userId);
+          const user = sampleUsers.find(u => u.id === userId);
           const participantAmount = parseFloat(amount) / (participants.length + 1);
           return {
             userId,
@@ -136,14 +143,11 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
                   <SelectValue placeholder="Select people" />
                 </SelectTrigger>
                 <SelectContent>
-                  {users
-                    .filter(user => user.id !== 'user-1')
-                    .map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name}
-                      </SelectItem>
-                    ))
-                  }
+                  {sampleUsers.map(user => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

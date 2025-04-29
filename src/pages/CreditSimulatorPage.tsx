@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +66,6 @@ const CreditSimulatorPage = () => {
                 value={creditScore.factors.creditUtilization} 
                 max={100} 
                 className="h-2" 
-                indicatorClassName={creditScore.factors.creditUtilization > 30 ? "bg-debt" : "bg-success"}
               />
             </div>
             
@@ -100,7 +98,6 @@ const CreditSimulatorPage = () => {
                       value={utilization} 
                       max={100} 
                       className="h-2" 
-                      indicatorClassName={isHighUtilization ? "bg-debt" : "bg-success"}
                     />
                     
                     {isHighUtilization && (

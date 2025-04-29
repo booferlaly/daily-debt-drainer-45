@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import BudgetOverview from '@/components/budget/BudgetOverview';
@@ -55,7 +54,6 @@ const BudgetPage = () => {
             <Progress 
               value={(budgetTotals.actual / budgetTotals.planned) * 100}
               className="h-2 mt-2"
-              indicatorClassName={overBudget ? "bg-debt" : ""}
             />
             <p className="text-xs text-muted-foreground mt-1">
               {Math.abs(budgetTotals.difference).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} {overBudget ? 'over budget' : 'remaining'}

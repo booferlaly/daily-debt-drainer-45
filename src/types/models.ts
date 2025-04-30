@@ -74,3 +74,20 @@ export interface CreditScoreAction {
   impactPoints: number;
   timePeriod: string;
 }
+
+export interface CreditBureau {
+  id: string;
+  name: string;
+  description: string;
+  logo?: string;
+}
+
+export interface CreditReportingStatus {
+  id: string;
+  debtId: string;
+  bureauId: string;
+  lastReported: string | null;
+  status: 'pending' | 'verified' | 'reported' | 'error';
+  nextReportDate: string | null;
+  isActive: boolean;
+}

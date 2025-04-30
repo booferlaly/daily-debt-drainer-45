@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
-import { currentUser } from '@/data/mockData';
 import { v4 as uuidv4 } from 'uuid';
+import { currentUser } from '@/data/mockData';
 
 type AddExpenseDialogProps = {
   onExpenseAdded: (newExpense: any) => void;

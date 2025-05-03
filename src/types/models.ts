@@ -91,3 +91,55 @@ export interface CreditReportingStatus {
   nextReportDate: string | null;
   isActive: boolean;
 }
+
+// New interfaces for financial account connections
+export interface FinancialAccount {
+  id: string;
+  userId: string;
+  institutionId: string;
+  accountName: string;
+  accountType: 'checking' | 'savings' | 'credit' | 'loan' | 'investment' | 'other';
+  accountNumber: string; // Last 4 digits only for security
+  currentBalance: number;
+  availableBalance?: number;
+  currency: string;
+  isActive: boolean;
+  lastUpdated: string;
+  accountMask?: string; // Masked account number (e.g., "****1234")
+  externalId: string; // ID from the financial provider
+}
+
+export interface FinancialInstitution {
+  id: string;
+  name: string;
+  logo?: string;
+  primaryColor?: string;
+  url?: string;
+  oauth: boolean; // Whether the institution supports OAuth
+  products: string[]; // Array of supported products like 'transactions', 'auth', 'identity'
+}
+
+export interface AccountConnection {
+  id: string;
+  userId: string;
+  institutionId: string;
+  accessToken: string; // Encrypted access token from the financial provider
+  itemId: string; // Reference ID for the connection
+  status: 'active' | 'pending' | 'error' | 'disconnected';
+  error?: string;
+  consentExpiration?: string; // When user consent expires
+  lastUpdated: string;
+  createdAt: string;
+}
+
+export interface Transaction {
+  id: string;
+  accountId: string;
+  date: string;
+  amount: number;
+  description: string;
+  category: string;
+  merchantName?: string;
+  pending: boolean;
+  externalId: string; // ID from the financial provider
+}

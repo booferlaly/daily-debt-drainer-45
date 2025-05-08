@@ -1,13 +1,6 @@
 
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { FinancialAccount, FinancialInstitution, AccountConnection, Transaction } from '../types/models';
-
-// These values will be provided by Supabase once connected
-const supabaseUrl = 'YOUR_SUPABASE_URL';
-const supabaseKey = 'YOUR_SUPABASE_KEY';
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Financial institutions
 export const getFinancialInstitutions = async (): Promise<FinancialInstitution[]> => {

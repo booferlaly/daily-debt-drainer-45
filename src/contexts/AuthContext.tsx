@@ -38,6 +38,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             title: 'Signed out',
             description: 'You have successfully signed out.',
           });
+        } else if (event === 'USER_UPDATED') {
+          toast({
+            title: 'Account updated',
+            description: 'Your account information has been updated.',
+          });
         }
       }
     );
@@ -47,6 +52,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       setLoading(false);
+      
+      // Handle hash parameters from email confirmation
+      const hash = window.location.hash;
+      if (hash && hash.includes('access_token')) {
+        console.log('Processing authentication from redirect');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -64,7 +75,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           data: {
             full_name: fullName,
-          }
+          },
+          emailRedirectTo: window.location.origin + '/auth'
         }
       });
       

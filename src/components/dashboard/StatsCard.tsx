@@ -31,7 +31,7 @@ const StatsCard = ({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {trend && (
+        {trend && trendValue && (
           <p 
             className={cn(
               "text-xs flex items-center mt-1",

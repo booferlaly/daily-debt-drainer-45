@@ -11,8 +11,8 @@ import {
   creditScore,
   expenses
 } from "@/data/mockData";
-import { CreditScoreGauge } from "@/components/credit/CreditScoreGauge";
-import { BudgetOverview } from "@/components/budget/BudgetOverview";
+import CreditScoreGauge from "@/components/credit/CreditScoreGauge";
+import BudgetOverview from "@/components/budget/BudgetOverview";
 import {
   CircleDollarSign,
   CreditCard,
@@ -56,20 +56,20 @@ const Dashboard = () => {
           title="Total Debt"
           value={formatAmount(totalDebt)}
           icon={<CreditCard className="text-debt" />}
-          trend="-2.3% from last month"
-          trendUp={false}
+          trend="down"
+          trendValue="-2.3% from last month"
         />
         <StatsCard 
           title="Daily Micropayments"
           value={formatAmount(dailyMicropayments)}
           icon={<PiggyBank className="text-primary" />}
-          detail="Helps reduce debt faster"
+          description="Helps reduce debt faster"
         />
         <StatsCard 
           title="People Owe You"
           value={formatAmount(totalOwed)}
           icon={<Users className="text-primary" />}
-          detail={`From ${expenses.filter(expense => 
+          description={`From ${expenses.filter(expense => 
             expense.user_id === "user-1" && 
             expense.participants?.some(p => p.user_id !== "user-1" && !p.paid)
           ).length} expenses`}
@@ -78,7 +78,7 @@ const Dashboard = () => {
           title="You Owe Others"
           value={formatAmount(totalOwe)}
           icon={<Receipt className="text-debt" />}
-          detail={`From ${expenses.filter(expense => 
+          description={`From ${expenses.filter(expense => 
             expense.user_id !== "user-1" && 
             expense.participants?.some(p => p.user_id === "user-1" && !p.paid)
           ).length} expenses`}
@@ -97,7 +97,7 @@ const Dashboard = () => {
           <CardContent className="pt-6">
             <h2 className="text-xl font-semibold mb-4">Credit Score</h2>
             <div className="flex flex-col items-center">
-              <CreditScoreGauge score={creditScore.score} />
+              <CreditScoreGauge creditScore={creditScore} />
               <div className="text-sm text-muted-foreground mt-2">
                 Last updated: {new Date(creditScore.lastUpdated).toLocaleDateString()}
               </div>

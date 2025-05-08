@@ -9,8 +9,8 @@ interface ExpenseHeaderProps {
 
 const ExpenseHeader: React.FC<ExpenseHeaderProps> = ({ onExpenseAdded }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-4 sm:space-y-0">
-      <h1 className="text-3xl font-bold tracking-tight">Expenses</h1>
+    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+      <h1 className="text-2xl font-bold tracking-tight">Expenses</h1>
       <AddExpenseDialog onExpenseAdded={onExpenseAdded} />
     </div>
   );

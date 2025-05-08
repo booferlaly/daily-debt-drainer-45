@@ -27,12 +27,12 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
   setSortOrder,
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+    <div className="space-y-4 mb-6">
       <Tabs 
         defaultValue="all" 
         value={activeTab} 
         onValueChange={setActiveTab}
-        className="w-full sm:w-auto"
+        className="w-full"
       >
         <TabsList className="grid grid-cols-4 w-full sm:w-auto text-xs">
           <TabsTrigger value="all" className="px-2 sm:px-3">All</TabsTrigger>
@@ -42,7 +42,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
         </TabsList>
       </Tabs>
       
-      <div className="flex gap-2 items-center">
+      <div className="flex flex-wrap gap-2 items-center">
         <Select 
           value={categoryFilter} 
           onValueChange={setCategoryFilter}

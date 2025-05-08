@@ -31,7 +31,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
   }
   
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       {expenses.map(expense => (
         <ExpenseCard 
           key={expense.id} 

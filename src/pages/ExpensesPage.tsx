@@ -47,7 +47,7 @@ const ExpensesPage = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 max-w-4xl">
       <ExpenseHeader onExpenseAdded={handleExpenseAdded} />
       
       <ExpenseFilters
@@ -60,7 +60,7 @@ const ExpensesPage = () => {
       />
       
       <Tabs value={activeTab} className="w-full">
-        <TabsContent value="all" className="m-0 mt-2">
+        <TabsContent value="all" className="m-0 pt-2">
           <ExpenseList
             expenses={filteredExpenses}
             currentUserId={currentUserId || ''}
@@ -69,7 +69,7 @@ const ExpensesPage = () => {
           />
         </TabsContent>
         
-        <TabsContent value="owed" className="m-0 mt-2">
+        <TabsContent value="owed" className="m-0 pt-2">
           <ExpenseList
             expenses={filteredExpenses}
             currentUserId={currentUserId || ''}
@@ -78,7 +78,7 @@ const ExpensesPage = () => {
           />
         </TabsContent>
         
-        <TabsContent value="owe" className="m-0 mt-2">
+        <TabsContent value="owe" className="m-0 pt-2">
           <ExpenseList
             expenses={filteredExpenses}
             currentUserId={currentUserId || ''}
@@ -87,7 +87,7 @@ const ExpensesPage = () => {
           />
         </TabsContent>
         
-        <TabsContent value="settled" className="m-0 mt-2">
+        <TabsContent value="settled" className="m-0 pt-2">
           <ExpenseList
             expenses={filteredExpenses}
             currentUserId={currentUserId || ''}

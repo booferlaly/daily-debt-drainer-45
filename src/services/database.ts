@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@/types/models';
 
@@ -45,9 +46,9 @@ export const getCurrentUser = async (): Promise<User | null> => {
     
     return {
       id: user.id,
-      name: profile.full_name || user.email?.split('@')[0] || 'User',
+      name: profile?.full_name || user.email?.split('@')[0] || 'User',
       email: user.email || '',
-      profileImage: profile.avatar_url
+      profileImage: profile?.avatar_url
     };
   } catch (error) {
     console.error('Error getting current user profile:', error);

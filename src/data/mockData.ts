@@ -28,12 +28,12 @@ export const expenses: Expense[] = [
     amount: 120.50,
     date: "2024-04-25",
     category: "Food",
-    paidBy: "user-1",
+    user_id: "user-1",
     participants: [
-      { userId: "user-1", name: "You", amount: 30.12, paid: true },
-      { userId: "user-2", name: "Jane Smith", amount: 30.13, paid: false },
-      { userId: "user-3", name: "Mike Johnson", amount: 30.12, paid: false },
-      { userId: "user-4", name: "Sara Wilson", amount: 30.13, paid: false },
+      { id: "p-1", user_id: "user-1", name: "You", amount: 30.12, paid: true, expense_id: "exp-1" },
+      { id: "p-2", user_id: "user-2", name: "Jane Smith", amount: 30.13, paid: false, expense_id: "exp-1" },
+      { id: "p-3", user_id: "user-3", name: "Mike Johnson", amount: 30.12, paid: false, expense_id: "exp-1" },
+      { id: "p-4", user_id: "user-4", name: "Sara Wilson", amount: 30.13, paid: false, expense_id: "exp-1" },
     ],
     notes: "Great dinner with friends",
   },
@@ -43,10 +43,10 @@ export const expenses: Expense[] = [
     amount: 2400,
     date: "2024-04-01",
     category: "Housing",
-    paidBy: "user-1",
+    user_id: "user-1",
     participants: [
-      { userId: "user-1", name: "You", amount: 1200, paid: true },
-      { userId: "user-3", name: "Mike Johnson", amount: 1200, paid: true },
+      { id: "p-5", user_id: "user-1", name: "You", amount: 1200, paid: true, expense_id: "exp-2" },
+      { id: "p-6", user_id: "user-3", name: "Mike Johnson", amount: 1200, paid: true, expense_id: "exp-2" },
     ],
   },
   {
@@ -55,10 +55,10 @@ export const expenses: Expense[] = [
     amount: 85.25,
     date: "2024-04-22",
     category: "Food",
-    paidBy: "user-1",
+    user_id: "user-1",
     participants: [
-      { userId: "user-1", name: "You", amount: 42.62, paid: true },
-      { userId: "user-3", name: "Mike Johnson", amount: 42.63, paid: false },
+      { id: "p-7", user_id: "user-1", name: "You", amount: 42.62, paid: true, expense_id: "exp-3" },
+      { id: "p-8", user_id: "user-3", name: "Mike Johnson", amount: 42.63, paid: false, expense_id: "exp-3" },
     ],
   },
   {
@@ -67,11 +67,11 @@ export const expenses: Expense[] = [
     amount: 145.80,
     date: "2024-04-15",
     category: "Utilities",
-    paidBy: "user-3",
+    user_id: "user-3",
     participants: [
-      { userId: "user-1", name: "You", amount: 48.60, paid: false },
-      { userId: "user-2", name: "Jane Smith", amount: 48.60, paid: false },
-      { userId: "user-3", name: "Mike Johnson", amount: 48.60, paid: true },
+      { id: "p-9", user_id: "user-1", name: "You", amount: 48.60, paid: false, expense_id: "exp-4" },
+      { id: "p-10", user_id: "user-2", name: "Jane Smith", amount: 48.60, paid: false, expense_id: "exp-4" },
+      { id: "p-11", user_id: "user-3", name: "Mike Johnson", amount: 48.60, paid: true, expense_id: "exp-4" },
     ],
   },
 ];
@@ -270,17 +270,17 @@ export const calculateMonthlyDebtPayment = (): number => {
 
 export const calculateTotalOwedToYou = (): number => {
   return expenses
-    .filter(expense => expense.paidBy === currentUser.id)
+    .filter(expense => expense.user_id === currentUser.id)
     .flatMap(expense => expense.participants)
-    .filter(participant => participant.userId !== currentUser.id && !participant.paid)
+    .filter(participant => participant.user_id !== currentUser.id && !participant.paid)
     .reduce((sum, participant) => sum + participant.amount, 0);
 };
 
 export const calculateTotalYouOwe = (): number => {
   return expenses
-    .filter(expense => expense.paidBy !== currentUser.id)
+    .filter(expense => expense.user_id !== currentUser.id)
     .flatMap(expense => expense.participants)
-    .filter(participant => participant.userId === currentUser.id && !participant.paid)
+    .filter(participant => participant.user_id === currentUser.id && !participant.paid)
     .reduce((sum, participant) => sum + participant.amount, 0);
 };
 

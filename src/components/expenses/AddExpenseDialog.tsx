@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus } from "lucide-react";
+import { Plus, CreditCard } from "lucide-react";
 import { createExpense, getCurrentUser } from '@/services/database';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -239,6 +238,12 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
                         <SelectItem value="utilities">Utilities</SelectItem>
                         <SelectItem value="transportation">Transportation</SelectItem>
                         <SelectItem value="entertainment">Entertainment</SelectItem>
+                        <SelectItem value="credit_card">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" />
+                            <span>Credit Card</span>
+                          </div>
+                        </SelectItem>
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>

@@ -9,7 +9,8 @@ import {
   calculateTotalYouOwe,
   calculateBudgetTotals,
   creditScore,
-  expenses
+  expenses,
+  budgetCategories
 } from "@/data/mockData";
 import CreditScoreGauge from "@/components/credit/CreditScoreGauge";
 import BudgetOverview from "@/components/budget/BudgetOverview";
@@ -28,7 +29,7 @@ const Dashboard = () => {
   const dailyMicropayments = calculateDailyMicropayments();
   const totalOwed = calculateTotalOwedToYou();
   const totalOwe = calculateTotalYouOwe();
-  const { planned, actual } = calculateBudgetTotals();
+  const budgetTotals = calculateBudgetTotals();
   
   // Format amounts for display
   const formatAmount = (amount: number) => {
@@ -89,7 +90,14 @@ const Dashboard = () => {
         <Card className="col-span-1 lg:col-span-2">
           <CardContent className="pt-6">
             <h2 className="text-xl font-semibold mb-4">Monthly Budget</h2>
-            <BudgetOverview />
+            <BudgetOverview 
+              categories={budgetCategories} 
+              totals={{
+                planned: budgetTotals.planned,
+                actual: budgetTotals.actual,
+                difference: budgetTotals.difference
+              }} 
+            />
           </CardContent>
         </Card>
         

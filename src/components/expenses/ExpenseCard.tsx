@@ -20,14 +20,14 @@ interface ExpenseCardProps {
 }
 
 const ExpenseCard = ({ expense, currentUserId, onSettle }: ExpenseCardProps) => {
-  const isOwner = expense.paidBy === currentUserId;
+  const isOwner = expense.user_id === currentUserId;
   const formattedDate = new Date(expense.date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric'
   });
   
   // Calculate what you owe or are owed
-  const userParticipant = expense.participants.find(p => p.userId === currentUserId);
+  const userParticipant = expense.participants?.find(p => p.user_id === currentUserId);
   const userAmount = userParticipant?.amount || 0;
   const userPaid = userParticipant?.paid || false;
   
@@ -37,8 +37,8 @@ const ExpenseCard = ({ expense, currentUserId, onSettle }: ExpenseCardProps) => 
   
   if (isOwner) {
     const unpaidAmount = expense.participants
-      .filter(p => p.userId !== currentUserId && !p.paid)
-      .reduce((sum, p) => sum + p.amount, 0);
+      ?.filter(p => p.user_id !== currentUserId && !p.paid)
+      .reduce((sum, p) => sum + p.amount, 0) || 0;
     
     if (unpaidAmount === 0) {
       statusText = 'Settled';
@@ -78,9 +78,9 @@ const ExpenseCard = ({ expense, currentUserId, onSettle }: ExpenseCardProps) => 
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center space-x-2">
             <Avatar className="h-6 w-6">
-              <AvatarFallback>{expense.paidBy === currentUserId ? 'You' : expense.participants.find(p => p.userId === expense.paidBy)?.name.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{expense.user_id === currentUserId ? 'You' : (expense.participants?.find(p => p.user_id === expense.user_id)?.name || '?').charAt(0)}</AvatarFallback>
             </Avatar>
-            <span className="text-sm">Paid by {expense.paidBy === currentUserId ? 'you' : expense.participants.find(p => p.userId === expense.paidBy)?.name}</span>
+            <span className="text-sm">Paid by {expense.user_id === currentUserId ? 'you' : expense.participants?.find(p => p.user_id === expense.user_id)?.name || 'Unknown'}</span>
           </div>
           <Badge variant="outline" className={statusColor}>
             {statusText}
@@ -88,7 +88,7 @@ const ExpenseCard = ({ expense, currentUserId, onSettle }: ExpenseCardProps) => 
         </div>
         
         <div className="text-xs text-muted-foreground mt-2">
-          Split between {expense.participants.length} people
+          Split between {(expense.participants?.length || 0)} people
         </div>
       </CardContent>
       {showSettleButton && onSettle && (

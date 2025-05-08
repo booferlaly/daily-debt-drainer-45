@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import ExpenseCard from '@/components/expenses/ExpenseCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Receipt, Plus, Filter } from 'lucide-react';
-import { expenses as initialExpenses, currentUser } from '@/data/mockData';
 import {
   Select,
   SelectContent,
@@ -15,36 +14,66 @@ import {
 import { Expense } from '@/types/models';
 import AddExpenseDialog from '@/components/expenses/AddExpenseDialog';
 import { useToast } from '@/hooks/use-toast';
+import { getExpenses, getCurrentUser, updateExpenseParticipant } from '@/services/database';
+import { useQuery } from '@tanstack/react-query';
 
 const ExpensesPage = () => {
   const { toast } = useToast();
-  const [expenses, setExpenses] = useState<Expense[]>(initialExpenses);
   const [activeTab, setActiveTab] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sortOrder, setSortOrder] = useState('recent');
   const [filteredExpenses, setFilteredExpenses] = useState<Expense[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  
+  // Fetch current user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setCurrentUserId(user.id);
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+    
+    fetchUser();
+  }, []);
+
+  // Fetch expenses using React Query
+  const { data: expenses = [], refetch: refetchExpenses } = useQuery({
+    queryKey: ['expenses'],
+    queryFn: getExpenses,
+    enabled: !!currentUserId,
+  });
   
   // Filter and sort expenses based on current selections
   useEffect(() => {
-    let result = [...expenses];
+    if (!expenses || !currentUserId) {
+      setFilteredExpenses([]);
+      return;
+    }
+    
+    let result = [...expenses] as Expense[];
     
     // Apply tab filter
     if (activeTab === 'owed') {
       result = result.filter(expense => 
-        expense.paidBy === currentUser.id && 
-        expense.participants.some(p => p.userId !== currentUser.id && !p.paid)
+        expense.user_id === currentUserId && 
+        expense.participants?.some(p => p.user_id !== currentUserId && !p.paid)
       );
     } else if (activeTab === 'owe') {
       result = result.filter(expense =>
-        expense.paidBy !== currentUser.id &&
-        expense.participants.some(p => p.userId === currentUser.id && !p.paid)
+        expense.user_id !== currentUserId &&
+        expense.participants?.some(p => p.user_id === currentUserId && !p.paid)
       );
     } else if (activeTab === 'settled') {
       result = result.filter(expense =>
-        (expense.paidBy === currentUser.id && 
-        !expense.participants.some(p => p.userId !== currentUser.id && !p.paid)) ||
-        (expense.paidBy !== currentUser.id &&
-        !expense.participants.some(p => p.userId === currentUser.id && !p.paid))
+        (expense.user_id === currentUserId && 
+        !expense.participants?.some(p => p.user_id !== currentUserId && !p.paid)) ||
+        (expense.user_id !== currentUserId &&
+        !expense.participants?.some(p => p.user_id === currentUserId && !p.paid))
       );
     }
     
@@ -65,53 +94,69 @@ const ExpensesPage = () => {
     }
     
     setFilteredExpenses(result);
-  }, [expenses, activeTab, categoryFilter, sortOrder]);
+  }, [expenses, activeTab, categoryFilter, sortOrder, currentUserId]);
   
   const handleExpenseAdded = (newExpense: Expense) => {
-    setExpenses(prev => [newExpense, ...prev]);
+    // Refresh the expenses list
+    refetchExpenses();
+    
     toast({
       title: "Expense Added",
       description: `${newExpense.title} has been added to your expenses.`,
     });
   };
   
-  const handleSettle = (expenseId: string) => {
-    setExpenses(prev => 
-      prev.map(expense => {
-        if (expense.id === expenseId) {
-          // Mark all participants as paid
-          const updatedParticipants = expense.participants.map(p => ({
-            ...p,
-            paid: true
-          }));
-          return { ...expense, participants: updatedParticipants };
+  const handleSettle = async (expenseId: string) => {
+    try {
+      // Find the expense
+      const expense = expenses.find(e => e.id === expenseId);
+      
+      if (!expense || !currentUserId) return;
+      
+      // Find the participant that needs to be updated
+      const participantToUpdate = expense.participants?.find(p => 
+        p.user_id === currentUserId && !p.paid
+      );
+      
+      if (participantToUpdate) {
+        // Update the participant to mark as paid
+        await updateExpenseParticipant(participantToUpdate.id, { paid: true });
+        
+        // Refresh expenses
+        refetchExpenses();
+        
+        toast({
+          title: "Expense Settled",
+          description: "The expense has been marked as settled.",
+        });
+      } else {
+        // If current user is the payer, mark all unpaid participants as paid
+        if (expense.user_id === currentUserId) {
+          const unpaidParticipants = expense.participants?.filter(p => !p.paid) || [];
+          
+          // Update each participant (in a real app, you might want to do this in a transaction)
+          for (const participant of unpaidParticipants) {
+            await updateExpenseParticipant(participant.id, { paid: true });
+          }
+          
+          // Refresh expenses
+          refetchExpenses();
+          
+          toast({
+            title: "Expense Settled",
+            description: "All participants have been marked as paid.",
+          });
         }
-        return expense;
-      })
-    );
-    
-    toast({
-      title: "Expense Settled",
-      description: "The expense has been marked as settled.",
-    });
+      }
+    } catch (error: any) {
+      console.error('Error settling expense:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to settle expense",
+        variant: "destructive",
+      });
+    }
   };
-
-  const owedToMe = expenses.filter(expense => 
-    expense.paidBy === currentUser.id && 
-    expense.participants.some(p => p.userId !== currentUser.id && !p.paid)
-  );
-  
-  const iOwe = expenses.filter(expense =>
-    expense.paidBy !== currentUser.id &&
-    expense.participants.some(p => p.userId === currentUser.id && !p.paid)
-  );
-  
-  const settled = expenses.filter(expense =>
-    (expense.paidBy === currentUser.id && 
-     !expense.participants.some(p => p.userId !== currentUser.id && !p.paid)) ||
-    (expense.paidBy !== currentUser.id &&
-     !expense.participants.some(p => p.userId === currentUser.id && !p.paid))
-  );
 
   return (
     <div className="space-y-6">
@@ -178,7 +223,7 @@ const ExpensesPage = () => {
               <ExpenseCard 
                 key={expense.id} 
                 expense={expense} 
-                currentUserId={currentUser.id}
+                currentUserId={currentUserId || ''}
                 onSettle={() => handleSettle(expense.id)}
               />
             ))}
@@ -192,13 +237,14 @@ const ExpensesPage = () => {
           </div>
         </TabsContent>
         
+        {/* Repeat the content for other tabs with the same pattern */}
         <TabsContent value="owed" className="m-0 mt-2">
           <div className="grid gap-4">
             {filteredExpenses.map(expense => (
               <ExpenseCard 
                 key={expense.id} 
                 expense={expense} 
-                currentUserId={currentUser.id}
+                currentUserId={currentUserId || ''}
                 onSettle={() => handleSettle(expense.id)}
               />
             ))}
@@ -218,7 +264,7 @@ const ExpensesPage = () => {
               <ExpenseCard 
                 key={expense.id} 
                 expense={expense} 
-                currentUserId={currentUser.id} 
+                currentUserId={currentUserId || ''}
                 onSettle={() => handleSettle(expense.id)}
               />
             ))}
@@ -238,7 +284,7 @@ const ExpensesPage = () => {
               <ExpenseCard 
                 key={expense.id} 
                 expense={expense} 
-                currentUserId={currentUser.id}
+                currentUserId={currentUserId || ''}
                 onSettle={() => handleSettle(expense.id)}
               />
             ))}

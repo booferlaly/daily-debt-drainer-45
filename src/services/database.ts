@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User, Expense, ExpenseParticipant } from '@/types/models';
 

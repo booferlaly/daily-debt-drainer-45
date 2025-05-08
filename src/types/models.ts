@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -12,16 +11,20 @@ export interface Expense {
   amount: number;
   date: string;
   category: string;
-  paidBy: string;
-  participants: ExpenseParticipant[];
+  user_id: string;
+  participants?: ExpenseParticipant[];
   notes?: string;
+  created_at?: string;
 }
 
 export interface ExpenseParticipant {
-  userId: string;
+  id: string;
   name: string;
   amount: number;
   paid: boolean;
+  user_id: string;
+  expense_id: string;
+  created_at?: string;
 }
 
 export interface Debt {

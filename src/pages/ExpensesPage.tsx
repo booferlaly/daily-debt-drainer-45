@@ -42,11 +42,19 @@ const ExpensesPage = () => {
   }, []);
 
   // Fetch expenses using React Query
-  const { data: expenses = [], refetch: refetchExpenses } = useQuery({
+  const { data: expensesData = [], refetch: refetchExpenses } = useQuery({
     queryKey: ['expenses'],
     queryFn: getExpenses,
     enabled: !!currentUserId,
   });
+
+  // Convert from database type to our application type
+  const expenses: Expense[] = React.useMemo(() => {
+    return expensesData.map(e => ({
+      ...e,
+      participants: []
+    })) as Expense[];
+  }, [expensesData]);
   
   // Filter and sort expenses based on current selections
   useEffect(() => {

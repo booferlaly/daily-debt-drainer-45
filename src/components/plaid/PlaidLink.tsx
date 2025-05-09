@@ -4,11 +4,11 @@ import { usePlaidLink } from 'react-plaid-link';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Link } from 'lucide-react';
-import { createLinkToken, exchangePublicToken } from '@/services/plaidService';
+import { createLinkToken, exchangePublicToken, savePlaidAccounts } from '@/services/plaidService';
 import { supabase } from "@/integrations/supabase/client";
 
 interface PlaidLinkProps {
-  onSuccess?: (publicToken: string, metadata: any) => void;
+  onSuccess?: () => void;
   className?: string;
 }
 
@@ -54,17 +54,12 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
         }
 
         // Save the accounts to the database
-        const { data, error } = await supabase.functions.invoke('plaid-link', {
-          body: {
-            action: 'save_accounts',
-            user_id: user.id,
-            item_id: result.item_id,
-            access_token: result.access_token,
-            accounts: result.accounts
-          }
-        });
-
-        if (error) throw error;
+        await savePlaidAccounts(
+          user.id,
+          result.item_id,
+          result.access_token,
+          result.accounts
+        );
 
         toast({
           title: 'Success',
@@ -73,7 +68,7 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
 
         // Call the success callback if provided
         if (onSuccess) {
-          onSuccess(publicToken, metadata);
+          onSuccess();
         }
       } catch (error) {
         console.error('Error in Plaid link flow:', error);

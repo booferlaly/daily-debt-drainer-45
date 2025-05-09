@@ -1,4 +1,5 @@
 
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,40 +27,43 @@ const SettingsPage = () => (
   </div>
 );
 
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            {/* Auth page - publicly accessible */}
-            <Route path="/auth" element={<AuthPage />} />
-            
-            {/* Protected routes - require authentication */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<AppLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="expenses" element={<ExpensesPage />} />
-                <Route path="micropayments" element={<MicropaymentsPage />} />
-                <Route path="budget" element={<BudgetPage />} />
-                <Route path="credit" element={<CreditSimulatorPage />} />
-                <Route path="settings" element={<SettingsPage />} />
-                <Route path="calendar" element={<CalendarPage />} />
-                <Route path="subscription-success" element={<SubscriptionSuccessPage />} />
-                <Route path="subscription-cancel" element={<SubscriptionCancelPage />} />
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Auth page - publicly accessible */}
+              <Route path="/auth" element={<AuthPage />} />
+              
+              {/* Protected routes - require authentication */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<AppLayout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="expenses" element={<ExpensesPage />} />
+                  <Route path="micropayments" element={<MicropaymentsPage />} />
+                  <Route path="budget" element={<BudgetPage />} />
+                  <Route path="credit" element={<CreditSimulatorPage />} />
+                  <Route path="settings" element={<SettingsPage />} />
+                  <Route path="calendar" element={<CalendarPage />} />
+                  <Route path="subscription-success" element={<SubscriptionSuccessPage />} />
+                  <Route path="subscription-cancel" element={<SubscriptionCancelPage />} />
+                </Route>
               </Route>
-            </Route>
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;

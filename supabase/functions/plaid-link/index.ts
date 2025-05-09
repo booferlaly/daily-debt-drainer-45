@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Configuration, PlaidApi, PlaidEnvironments } from "https://esm.sh/plaid@12.2.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,7 +29,13 @@ serve(async (req) => {
     const plaidClient = new PlaidApi(configuration);
     
     // Parse request body
-    const { action } = await req.json();
+    const body = await req.json();
+    const { action } = body;
+    
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Handle different actions
     if (action === 'create_link_token') {
@@ -57,7 +64,7 @@ serve(async (req) => {
         }
       );
     } else if (action === 'exchange_public_token') {
-      const { public_token } = await req.json();
+      const { public_token } = body;
       if (!public_token) {
         throw new Error('No public token provided');
       }
@@ -83,6 +90,79 @@ serve(async (req) => {
           item_id: itemId,
           accounts: accounts
         }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      );
+    } else if (action === 'save_accounts') {
+      const { user_id, item_id, access_token, accounts } = body;
+      
+      if (!user_id || !item_id || !access_token || !accounts) {
+        throw new Error('Missing required parameters');
+      }
+      
+      // First save the plaid item
+      const { error: itemError } = await supabase
+        .from('plaid_items')
+        .insert({
+          user_id,
+          item_id,
+          access_token
+        });
+      
+      if (itemError) {
+        throw new Error(`Error saving item: ${itemError.message}`);
+      }
+      
+      // Then save the accounts
+      const accountsToInsert = accounts.map(account => ({
+        user_id,
+        item_id,
+        account_id: account.account_id,
+        name: account.name,
+        mask: account.mask,
+        type: account.type,
+        subtype: account.subtype,
+        institution_id: null,
+        available_balance: account.balances?.available || null,
+        current_balance: account.balances?.current || null,
+        iso_currency_code: account.balances?.iso_currency_code || null
+      }));
+      
+      const { error: accountsError } = await supabase
+        .from('plaid_accounts')
+        .insert(accountsToInsert);
+      
+      if (accountsError) {
+        throw new Error(`Error saving accounts: ${accountsError.message}`);
+      }
+      
+      return new Response(
+        JSON.stringify({ success: true }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        }
+      );
+    } else if (action === 'get_accounts') {
+      const { user_id } = body;
+      
+      if (!user_id) {
+        throw new Error('Missing user_id parameter');
+      }
+      
+      const { data, error } = await supabase
+        .from('plaid_accounts')
+        .select('*')
+        .eq('user_id', user_id);
+      
+      if (error) {
+        throw new Error(`Error getting accounts: ${error.message}`);
+      }
+      
+      return new Response(
+        JSON.stringify(data),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 200

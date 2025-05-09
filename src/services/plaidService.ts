@@ -49,37 +49,18 @@ export const savePlaidAccounts = async (
   accounts: PlaidAccount[]
 ) => {
   try {
-    // First save the item
-    const { error: itemError } = await supabase
-      .from('plaid_items')
-      .insert({
+    // First save the item using custom RPC
+    const { data: itemData, error: itemError } = await supabase.functions.invoke('plaid-link', {
+      body: { 
+        action: 'save_accounts',
         user_id: userId,
         item_id: itemId,
-        access_token: accessToken
-      });
+        access_token: accessToken,
+        accounts
+      }
+    });
     
     if (itemError) throw itemError;
-    
-    // Then save each account
-    const accountsToInsert = accounts.map(account => ({
-      user_id: userId,
-      item_id: itemId,
-      account_id: account.id,
-      name: account.name,
-      mask: account.mask,
-      type: account.type,
-      subtype: account.subtype,
-      institution_id: null, // Would need a separate API call to get this
-      available_balance: account.balances?.available || null,
-      current_balance: account.balances?.current || null,
-      iso_currency_code: account.balances?.iso_currency_code || null
-    }));
-    
-    const { error: accountsError } = await supabase
-      .from('plaid_accounts')
-      .insert(accountsToInsert);
-    
-    if (accountsError) throw accountsError;
     
     return true;
   } catch (error) {
@@ -93,10 +74,12 @@ export const savePlaidAccounts = async (
  */
 export const getPlaidAccounts = async (userId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('plaid_accounts')
-      .select('*')
-      .eq('user_id', userId);
+    const { data, error } = await supabase.functions.invoke('plaid-link', {
+      body: { 
+        action: 'get_accounts',
+        user_id: userId
+      }
+    });
     
     if (error) throw error;
     return data;

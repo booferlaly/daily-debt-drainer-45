@@ -10,4 +10,3 @@ verify_jwt = true
 verify_jwt = true
 [functions.plaid-link]
 verify_jwt = true
-

@@ -1,15 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import BudgetOverview from '@/components/budget/BudgetOverview';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { budgetCategories, calculateBudgetTotals, expenses } from '@/data/mockData';
-import { PieChart, Wallet, Plus } from 'lucide-react';
+import { budgetCategories as initialBudgetCategories, calculateBudgetTotals, expenses } from '@/data/mockData';
+import { PieChart, Wallet } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import AddBudgetCategoryDialog from '@/components/budget/AddBudgetCategoryDialog';
+import { BudgetCategory } from '@/types/models';
 
 const BudgetPage = () => {
+  const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>(initialBudgetCategories);
   const budgetTotals = calculateBudgetTotals();
   const overBudget = budgetTotals.difference < 0;
+  
+  // Handler for adding a new budget category
+  const handleCategoryAdded = (newCategory: BudgetCategory) => {
+    setBudgetCategories([...budgetCategories, newCategory]);
+  };
   
   // Group expenses by category
   const expensesByCategory = expenses.reduce((acc, expense) => {
@@ -24,10 +32,7 @@ const BudgetPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-4 sm:space-y-0">
         <h1 className="text-3xl font-bold tracking-tight">Budget</h1>
-        <Button className="sm:w-auto flex gap-2">
-          <Plus className="h-4 w-4" />
-          <span>Add Budget Category</span>
-        </Button>
+        <AddBudgetCategoryDialog onCategoryAdded={handleCategoryAdded} />
       </div>
       
       <div className="grid gap-6 md:grid-cols-3">

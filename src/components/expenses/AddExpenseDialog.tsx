@@ -20,11 +20,25 @@ import { createExpense, getCurrentUser } from '@/services/database';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { Textarea } from '@/components/ui/textarea';
-import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 type AddExpenseDialogProps = {
   onExpenseAdded: (newExpense: any) => void;
 };
+
+// Create a schema for form validation
+const expenseFormSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  amount: z.string().min(1, "Amount is required")
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: "Amount must be a positive number",
+    }),
+  category: z.string().min(1, "Category is required"),
+  notes: z.string().optional(),
+});
+
+type ExpenseFormValues = z.infer<typeof expenseFormSchema>;
 
 const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
   const { toast } = useToast();
@@ -32,7 +46,8 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ id: string, name: string } | null>(null);
   
-  const form = useForm({
+  const form = useForm<ExpenseFormValues>({
+    resolver: zodResolver(expenseFormSchema),
     defaultValues: {
       title: '',
       amount: '',
@@ -65,7 +80,7 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
     fetchCurrentUser();
   }, [toast]);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: ExpenseFormValues) => {
     if (!currentUser) {
       toast({
         title: 'Error',

@@ -2,14 +2,16 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Expense } from '@/types/models';
-import { getExpenses, updateExpenseParticipant } from '@/services/database';
+import { getExpenses, updateExpenseParticipant, deleteExpense } from '@/services/database';
 import { useToast } from '@/hooks/use-toast';
 
 export const useExpenseManager = (currentUserId: string | null) => {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSettling, setIsSettling] = useState(false);
   
   // Fetch expenses using React Query
-  const { data: expensesData = [], refetch: refetchExpenses } = useQuery({
+  const { data: expensesData = [], refetch: refetchExpenses, isLoading } = useQuery({
     queryKey: ['expenses'],
     queryFn: getExpenses,
     enabled: !!currentUserId,
@@ -33,6 +35,7 @@ export const useExpenseManager = (currentUserId: string | null) => {
   
   const handleSettle = async (expenseId: string) => {
     try {
+      setIsSettling(true);
       // Find the expense
       const expense = expenses.find(e => e.id === expenseId);
       
@@ -80,6 +83,34 @@ export const useExpenseManager = (currentUserId: string | null) => {
         description: error.message || "Failed to settle expense",
         variant: "destructive",
       });
+    } finally {
+      setIsSettling(false);
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId: string) => {
+    try {
+      setIsDeleting(true);
+      
+      // Delete the expense
+      await deleteExpense(expenseId);
+      
+      // Refresh expenses
+      refetchExpenses();
+      
+      toast({
+        title: "Expense Deleted",
+        description: "The expense has been deleted successfully.",
+      });
+    } catch (error: any) {
+      console.error('Error deleting expense:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete expense",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
   
@@ -87,7 +118,11 @@ export const useExpenseManager = (currentUserId: string | null) => {
     expenses,
     handleExpenseAdded,
     handleSettle,
-    refetchExpenses
+    handleDeleteExpense,
+    refetchExpenses,
+    isLoading,
+    isSettling,
+    isDeleting
   };
 };
 

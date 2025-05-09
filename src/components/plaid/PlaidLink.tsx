@@ -15,34 +15,39 @@ interface PlaidLinkProps {
 export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
   const [linkToken, setLinkToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Get a link token when the component mounts
-  useEffect(() => {
-    const getLinkToken = async () => {
-      try {
-        setLoading(true);
-        const token = await createLinkToken();
-        setLinkToken(token);
-      } catch (error) {
-        console.error('Error getting link token:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to initialize Plaid Link. Please try again.',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getLinkToken();
+  const getLinkToken = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = await createLinkToken();
+      setLinkToken(token);
+      console.log("Link token created successfully");
+    } catch (err) {
+      console.error('Error getting link token:', err);
+      setError('Failed to initialize Plaid Link. Please try again.');
+      toast({
+        title: 'Error',
+        description: 'Failed to initialize Plaid Link. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   }, [toast]);
+
+  useEffect(() => {
+    getLinkToken();
+  }, [getLinkToken]);
 
   const onPlaidSuccess = useCallback(
     async (publicToken: string, metadata: any) => {
       try {
         setLoading(true);
+        setError(null);
 
         // Process the public token
         const result = await exchangePublicToken(publicToken);
@@ -70,8 +75,9 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
         if (onSuccess) {
           onSuccess();
         }
-      } catch (error) {
-        console.error('Error in Plaid link flow:', error);
+      } catch (err) {
+        console.error('Error in Plaid link flow:', err);
+        setError('Failed to link your accounts. Please try again.');
         toast({
           title: 'Error',
           description: 'Failed to link your accounts. Please try again.',
@@ -84,6 +90,10 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
     [onSuccess, toast]
   );
 
+  const handleRetry = () => {
+    getLinkToken();
+  };
+
   const { open, ready } = usePlaidLink({
     token: linkToken,
     onSuccess: onPlaidSuccess,
@@ -95,17 +105,31 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
   });
 
   return (
-    <Button
-      onClick={() => open()}
-      disabled={!ready || loading || !linkToken}
-      className={className}
-    >
-      {loading ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <Link className="mr-2 h-4 w-4" />
+    <>
+      <Button
+        onClick={() => open()}
+        disabled={!ready || loading || !linkToken}
+        className={className}
+      >
+        {loading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Link className="mr-2 h-4 w-4" />
+        )}
+        Link Bank Account
+      </Button>
+      {error && (
+        <div className="mt-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleRetry} 
+            className="text-xs"
+          >
+            Retry
+          </Button>
+        </div>
       )}
-      Link Bank Account
-    </Button>
+    </>
   );
 }

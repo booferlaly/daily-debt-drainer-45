@@ -1,7 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { Configuration, PlaidApi, PlaidEnvironments } from "https://esm.sh/plaid@12.2.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";
+import { Configuration, PlaidApi, PlaidEnvironments } from "https://esm.sh/plaid@12.2.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,22 +15,30 @@ serve(async (req) => {
   }
 
   try {
+    // Parse request body
+    const body = await req.json();
+    const { action } = body;
+    
     // Initialize Plaid client
+    const clientId = Deno.env.get("PLAID_CLIENT_ID");
+    const secret = Deno.env.get("PLAID_SECRET");
+    
+    if (!clientId || !secret) {
+      console.error("Missing Plaid credentials");
+      throw new Error("Missing Plaid API credentials");
+    }
+    
     const configuration = new Configuration({
-      basePath: PlaidEnvironments.sandbox, // Use sandbox for testing, change to development or production
+      basePath: PlaidEnvironments.sandbox,
       baseOptions: {
         headers: {
-          'PLAID-CLIENT-ID': Deno.env.get("PLAID_CLIENT_ID") || "",
-          'PLAID-SECRET': Deno.env.get("PLAID_SECRET") || "",
+          'PLAID-CLIENT-ID': clientId,
+          'PLAID-SECRET': secret,
         },
       },
     });
     
     const plaidClient = new PlaidApi(configuration);
-    
-    // Parse request body
-    const body = await req.json();
-    const { action } = body;
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
@@ -39,12 +47,7 @@ serve(async (req) => {
     
     // Handle different actions
     if (action === 'create_link_token') {
-      // Get the user info from auth header
-      const authHeader = req.headers.get('Authorization')!;
-      if (!authHeader) {
-        throw new Error('Missing Authorization header');
-      }
-      
+      console.log("Creating link token");
       // Create link token
       const createTokenResponse = await plaidClient.linkTokenCreate({
         user: {

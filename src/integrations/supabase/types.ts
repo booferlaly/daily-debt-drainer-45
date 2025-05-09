@@ -80,6 +80,86 @@ export type Database = {
         }
         Relationships: []
       }
+      plaid_accounts: {
+        Row: {
+          account_id: string
+          available_balance: number | null
+          created_at: string
+          current_balance: number | null
+          id: string
+          institution_id: string | null
+          iso_currency_code: string | null
+          item_id: string
+          mask: string | null
+          name: string
+          subtype: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          available_balance?: number | null
+          created_at?: string
+          current_balance?: number | null
+          id?: string
+          institution_id?: string | null
+          iso_currency_code?: string | null
+          item_id: string
+          mask?: string | null
+          name: string
+          subtype?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          available_balance?: number | null
+          created_at?: string
+          current_balance?: number | null
+          id?: string
+          institution_id?: string | null
+          iso_currency_code?: string | null
+          item_id?: string
+          mask?: string | null
+          name?: string
+          subtype?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plaid_accounts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "plaid_items"
+            referencedColumns: ["item_id"]
+          },
+        ]
+      }
+      plaid_items: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          item_id: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          item_id: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

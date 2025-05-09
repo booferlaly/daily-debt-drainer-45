@@ -7,11 +7,21 @@ import { PlaidAccount, PlaidLinkResult } from "@/types/models";
  */
 export const createLinkToken = async (): Promise<string> => {
   try {
+    console.log("Requesting link token from Plaid...");
     const { data, error } = await supabase.functions.invoke('plaid-link', {
       body: { action: 'create_link_token' }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data || !data.link_token) {
+      console.error('Invalid response from Plaid link function:', data);
+      throw new Error('Invalid response from server');
+    }
+    
     return data.link_token;
   } catch (error) {
     console.error('Error creating link token:', error);
@@ -24,6 +34,7 @@ export const createLinkToken = async (): Promise<string> => {
  */
 export const exchangePublicToken = async (publicToken: string): Promise<PlaidLinkResult> => {
   try {
+    console.log("Exchanging public token...");
     const { data, error } = await supabase.functions.invoke('plaid-link', {
       body: { 
         action: 'exchange_public_token',
@@ -31,7 +42,16 @@ export const exchangePublicToken = async (publicToken: string): Promise<PlaidLin
       }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data) {
+      console.error('Invalid response from exchange token function');
+      throw new Error('Invalid response from server');
+    }
+    
     return data;
   } catch (error) {
     console.error('Error exchanging public token:', error);
@@ -49,6 +69,7 @@ export const savePlaidAccounts = async (
   accounts: PlaidAccount[]
 ) => {
   try {
+    console.log("Saving Plaid accounts...");
     // First save the item using custom RPC
     const { data: itemData, error: itemError } = await supabase.functions.invoke('plaid-link', {
       body: { 
@@ -60,7 +81,10 @@ export const savePlaidAccounts = async (
       }
     });
     
-    if (itemError) throw itemError;
+    if (itemError) {
+      console.error('Supabase function error:', itemError);
+      throw itemError;
+    }
     
     return true;
   } catch (error) {
@@ -74,6 +98,7 @@ export const savePlaidAccounts = async (
  */
 export const getPlaidAccounts = async (userId: string) => {
   try {
+    console.log("Getting Plaid accounts for user:", userId);
     const { data, error } = await supabase.functions.invoke('plaid-link', {
       body: { 
         action: 'get_accounts',
@@ -81,7 +106,11 @@ export const getPlaidAccounts = async (userId: string) => {
       }
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
     return data;
   } catch (error) {
     console.error('Error getting Plaid accounts:', error);

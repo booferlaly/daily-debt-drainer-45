@@ -20,19 +20,18 @@ const MicropaymentsHeader = ({
       <div className="flex gap-2">
         <Button 
           variant="outline" 
-          className="flex gap-2" 
           onClick={onOpenConfigModal}
         >
-          <Settings className="h-4 w-4" />
-          <span>Configure</span>
+          <Settings className="h-4 w-4 mr-2" />
+          Configure
         </Button>
-        <Button className="flex gap-2" onClick={onOpenAutoPayModal}>
-          <CreditCard className="h-4 w-4" />
-          <span>Set Up Auto Pay</span>
+        <Button onClick={onOpenAutoPayModal}>
+          <CreditCard className="h-4 w-4 mr-2" />
+          Set Up Auto Pay
         </Button>
-        <Button className="flex gap-2" onClick={onOpenScheduleModal}>
-          <CalendarClock className="h-4 w-4" />
-          <span>Schedule</span>
+        <Button onClick={onOpenScheduleModal}>
+          <CalendarClock className="h-4 w-4 mr-2" />
+          Schedule
         </Button>
       </div>
     </div>

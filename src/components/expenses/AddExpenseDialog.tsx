@@ -30,8 +30,6 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [users, setUsers] = useState<{id: string, name: string}[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<{ id: string, name: string } | null>(null);
   
   const form = useForm({
@@ -67,42 +65,6 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
     fetchCurrentUser();
   }, [toast]);
 
-  // For simplicity, we'll fetch a few random users from the profiles table
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .limit(10);
-        
-        if (error) throw error;
-        
-        // Filter out current user and map to required format
-        const otherUsers = data
-          .filter(user => user.id !== currentUser?.id)
-          .map(user => ({
-            id: user.id,
-            name: user.full_name || 'Unknown User'
-          }));
-        
-        setUsers(otherUsers);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-        // If we can't get real users, use some dummy data
-        setUsers([
-          { id: 'user-2', name: 'John Doe' },
-          { id: 'user-3', name: 'Jane Smith' },
-          { id: 'user-4', name: 'Mike Johnson' },
-        ]);
-      }
-    };
-
-    if (currentUser) {
-      fetchUsers();
-    }
-  }, [currentUser]);
-
   const handleSubmit = async (data: any) => {
     if (!currentUser) {
       toast({
@@ -116,27 +78,14 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
     try {
       setLoading(true);
       
-      // Calculate split amount
-      const totalParticipants = selectedUsers.length + 1; // +1 for current user
-      const amountPerPerson = parseFloat(data.amount) / totalParticipants;
-      
-      // Create participants array
+      // Create participants array with only current user
       const participants = [
         {
           user_id: currentUser.id,
           name: currentUser.name,
-          amount: amountPerPerson,
+          amount: parseFloat(data.amount),
           paid: true // Current user paid the expense
-        },
-        ...selectedUsers.map(userId => {
-          const user = users.find(u => u.id === userId);
-          return {
-            user_id: userId,
-            name: user?.name || 'Unknown',
-            amount: amountPerPerson,
-            paid: false
-          };
-        })
+        }
       ];
       
       // Create the expense
@@ -170,7 +119,6 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
   
   const resetForm = () => {
     form.reset();
-    setSelectedUsers([]);
   };
   
   return (
@@ -291,25 +239,6 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
                   </FormItem>
                 )}
               />
-              
-              <div>
-                <Label htmlFor="participants">Split with</Label>
-                <Select 
-                  value={selectedUsers.join(',')} 
-                  onValueChange={(val) => setSelectedUsers(val ? val.split(',') : [])}
-                >
-                  <SelectTrigger id="participants">
-                    <SelectValue placeholder="Select people" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
 
               <FormField
                 control={form.control}

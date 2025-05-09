@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, CreditCard } from "lucide-react";
+import { 
+  Plus, 
+  CreditCard, 
+  Utensils, 
+  Home, 
+  Zap, 
+  Car, 
+  Film, 
+  PackageOpen 
+} from "lucide-react";
 import { createExpense, getCurrentUser } from '@/services/database';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
@@ -233,18 +243,48 @@ const AddExpenseDialog = ({ onExpenseAdded }: AddExpenseDialogProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="food">Food</SelectItem>
-                        <SelectItem value="housing">Housing</SelectItem>
-                        <SelectItem value="utilities">Utilities</SelectItem>
-                        <SelectItem value="transportation">Transportation</SelectItem>
-                        <SelectItem value="entertainment">Entertainment</SelectItem>
+                        <SelectItem value="food">
+                          <div className="flex items-center gap-2">
+                            <Utensils className="h-4 w-4" />
+                            <span>Food</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="housing">
+                          <div className="flex items-center gap-2">
+                            <Home className="h-4 w-4" />
+                            <span>Housing</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="utilities">
+                          <div className="flex items-center gap-2">
+                            <Zap className="h-4 w-4" />
+                            <span>Utilities</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="transportation">
+                          <div className="flex items-center gap-2">
+                            <Car className="h-4 w-4" />
+                            <span>Transportation</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="entertainment">
+                          <div className="flex items-center gap-2">
+                            <Film className="h-4 w-4" />
+                            <span>Entertainment</span>
+                          </div>
+                        </SelectItem>
                         <SelectItem value="credit_card">
                           <div className="flex items-center gap-2">
                             <CreditCard className="h-4 w-4" />
                             <span>Credit Card</span>
                           </div>
                         </SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="other">
+                          <div className="flex items-center gap-2">
+                            <PackageOpen className="h-4 w-4" />
+                            <span>Other</span>
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

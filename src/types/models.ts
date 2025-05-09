@@ -146,3 +146,49 @@ export interface Transaction {
   pending: boolean;
   externalId: string; // ID from the financial provider
 }
+
+// Plaid types
+export interface PlaidAccount {
+  id: string;
+  name: string;
+  mask: string;
+  type: string;
+  subtype: string;
+  balances?: {
+    available: number | null;
+    current: number | null;
+    limit: number | null;
+    iso_currency_code: string | null;
+    unofficial_currency_code: string | null;
+  };
+}
+
+export interface PlaidLinkResult {
+  access_token: string;
+  item_id: string;
+  accounts: PlaidAccount[];
+}
+
+export interface PlaidItem {
+  id: string;
+  user_id: string;
+  item_id: string;
+  access_token: string;
+  created_at: string;
+}
+
+export interface StoredPlaidAccount {
+  id: string;
+  user_id: string;
+  item_id: string;
+  account_id: string;
+  name: string;
+  mask: string;
+  type: string;
+  subtype: string;
+  institution_id: string | null;
+  available_balance: number | null;
+  current_balance: number | null;
+  iso_currency_code: string | null;
+  created_at: string;
+}

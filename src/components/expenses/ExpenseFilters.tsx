@@ -8,6 +8,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { 
+  ShoppingCart, 
+  Home, 
+  Utensils, 
+  Car, 
+  PiggyBank, 
+  CreditCard, 
+  Clock, 
+  ArrowUpDown, 
+  ArrowUp, 
+  ArrowDown 
+} from "lucide-react";
 
 interface ExpenseFiltersProps {
   activeTab: string;
@@ -51,14 +63,54 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent className="text-xs">
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="food">Food</SelectItem>
-            <SelectItem value="housing">Housing</SelectItem>
-            <SelectItem value="utilities">Utilities</SelectItem>
-            <SelectItem value="transportation">Transportation</SelectItem>
-            <SelectItem value="entertainment">Entertainment</SelectItem>
-            <SelectItem value="credit_card">Credit Card</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
+            <SelectItem value="all">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span>All Categories</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="food">
+              <div className="flex items-center gap-2">
+                <Utensils className="h-3.5 w-3.5" />
+                <span>Food</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="housing">
+              <div className="flex items-center gap-2">
+                <Home className="h-3.5 w-3.5" />
+                <span>Housing</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="utilities">
+              <div className="flex items-center gap-2">
+                <PiggyBank className="h-3.5 w-3.5" />
+                <span>Utilities</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="transportation">
+              <div className="flex items-center gap-2">
+                <Car className="h-3.5 w-3.5" />
+                <span>Transportation</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="entertainment">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span>Entertainment</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="credit_card">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-3.5 w-3.5" />
+                <span>Credit Card</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="other">
+              <div className="flex items-center gap-2">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span>Other</span>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
         
@@ -70,10 +122,30 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             <SelectValue placeholder="Most Recent" />
           </SelectTrigger>
           <SelectContent className="text-xs">
-            <SelectItem value="recent">Most Recent</SelectItem>
-            <SelectItem value="oldest">Oldest</SelectItem>
-            <SelectItem value="highest">Highest Amount</SelectItem>
-            <SelectItem value="lowest">Lowest Amount</SelectItem>
+            <SelectItem value="recent">
+              <div className="flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Most Recent</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="oldest">
+              <div className="flex items-center gap-2">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Oldest</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="highest">
+              <div className="flex items-center gap-2">
+                <ArrowUp className="h-3.5 w-3.5" />
+                <span>Highest Amount</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="lowest">
+              <div className="flex items-center gap-2">
+                <ArrowDown className="h-3.5 w-3.5" />
+                <span>Lowest Amount</span>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

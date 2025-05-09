@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { debts, microPayments } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import MicroPaymentStats from '@/components/micropayments/MicroPaymentStats';
-import { CalendarClock, CreditCard as CardIcon, Settings } from 'lucide-react';
+import { CalendarClock, CreditCard, Settings } from 'lucide-react';
 import AutoPayModal from '@/components/micropayments/AutoPayModal';
 import MicroPaymentConfig from '@/components/micropayments/MicroPaymentConfig';
 
@@ -60,7 +59,7 @@ const MicropaymentsPage = () => {
             <span>Configure</span>
           </Button>
           <Button className="flex gap-2" onClick={() => setShowAutoPayModal(true)}>
-            <CardIcon className="h-4 w-4" />
+            <CreditCard className="h-4 w-4" />
             <span>Set Up Auto Pay</span>
           </Button>
           <Button className="flex gap-2">

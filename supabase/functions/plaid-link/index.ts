@@ -25,9 +25,16 @@ serve(async (req) => {
     
     if (!clientId || !secret) {
       console.error("Missing Plaid credentials");
-      throw new Error("Missing Plaid API credentials");
+      return new Response(
+        JSON.stringify({ error: "Missing Plaid API credentials" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
     }
     
+    // Create Plaid configuration
     const configuration = new Configuration({
       basePath: PlaidEnvironments.sandbox,
       baseOptions: {
@@ -38,6 +45,7 @@ serve(async (req) => {
       },
     });
     
+    // Initialize the Plaid client
     const plaidClient = new PlaidApi(configuration);
     
     // Initialize Supabase client
@@ -48,139 +56,209 @@ serve(async (req) => {
     // Handle different actions
     if (action === 'create_link_token') {
       console.log("Creating link token");
-      // Create link token
-      const createTokenResponse = await plaidClient.linkTokenCreate({
-        user: {
-          client_user_id: crypto.randomUUID(), // Use a unique ID for the user
-        },
-        client_name: 'Debt Micropayment App',
-        products: ['auth', 'transactions'],
-        country_codes: ['US'],
-        language: 'en',
-      });
-      
-      return new Response(
-        JSON.stringify({ link_token: createTokenResponse.data.link_token }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
-        }
-      );
+      try {
+        // Create link token
+        const createTokenResponse = await plaidClient.linkTokenCreate({
+          user: {
+            client_user_id: crypto.randomUUID(), // Use a unique ID for the user
+          },
+          client_name: 'Debt Micropayment App',
+          products: ['auth', 'transactions'],
+          country_codes: ['US'],
+          language: 'en',
+        });
+        
+        console.log("Link token created successfully");
+        
+        return new Response(
+          JSON.stringify({ link_token: createTokenResponse.data.link_token }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      } catch (e) {
+        console.error("Error creating Plaid link token:", e);
+        return new Response(
+          JSON.stringify({ error: e.message || "Failed to create Plaid link token" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
+      }
     } else if (action === 'exchange_public_token') {
       const { public_token } = body;
       if (!public_token) {
-        throw new Error('No public token provided');
+        return new Response(
+          JSON.stringify({ error: 'No public token provided' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
       }
       
-      // Exchange public token for access token
-      const exchangeResponse = await plaidClient.itemPublicTokenExchange({
-        public_token,
-      });
-      
-      const accessToken = exchangeResponse.data.access_token;
-      const itemId = exchangeResponse.data.item_id;
-      
-      // Get account information
-      const accountsResponse = await plaidClient.accountsGet({
-        access_token: accessToken,
-      });
-      
-      const accounts = accountsResponse.data.accounts;
-      
-      return new Response(
-        JSON.stringify({ 
-          access_token: accessToken, 
-          item_id: itemId,
-          accounts: accounts
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
-        }
-      );
+      try {
+        // Exchange public token for access token
+        const exchangeResponse = await plaidClient.itemPublicTokenExchange({
+          public_token,
+        });
+        
+        const accessToken = exchangeResponse.data.access_token;
+        const itemId = exchangeResponse.data.item_id;
+        
+        // Get account information
+        const accountsResponse = await plaidClient.accountsGet({
+          access_token: accessToken,
+        });
+        
+        const accounts = accountsResponse.data.accounts;
+        
+        return new Response(
+          JSON.stringify({ 
+            access_token: accessToken, 
+            item_id: itemId,
+            accounts: accounts
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      } catch (e) {
+        console.error("Error exchanging Plaid token:", e);
+        return new Response(
+          JSON.stringify({ error: e.message || "Failed to exchange public token" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
+      }
     } else if (action === 'save_accounts') {
       const { user_id, item_id, access_token, accounts } = body;
       
       if (!user_id || !item_id || !access_token || !accounts) {
-        throw new Error('Missing required parameters');
+        return new Response(
+          JSON.stringify({ error: 'Missing required parameters' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
       }
       
-      // First save the plaid item
-      const { error: itemError } = await supabase
-        .from('plaid_items')
-        .insert({
+      try {
+        // First save the plaid item
+        const { error: itemError } = await supabase
+          .from('plaid_items')
+          .insert({
+            user_id,
+            item_id,
+            access_token
+          });
+        
+        if (itemError) {
+          throw new Error(`Error saving item: ${itemError.message}`);
+        }
+        
+        // Then save the accounts
+        const accountsToInsert = accounts.map(account => ({
           user_id,
           item_id,
-          access_token
-        });
-      
-      if (itemError) {
-        throw new Error(`Error saving item: ${itemError.message}`);
-      }
-      
-      // Then save the accounts
-      const accountsToInsert = accounts.map(account => ({
-        user_id,
-        item_id,
-        account_id: account.account_id,
-        name: account.name,
-        mask: account.mask,
-        type: account.type,
-        subtype: account.subtype,
-        institution_id: null,
-        available_balance: account.balances?.available || null,
-        current_balance: account.balances?.current || null,
-        iso_currency_code: account.balances?.iso_currency_code || null
-      }));
-      
-      const { error: accountsError } = await supabase
-        .from('plaid_accounts')
-        .insert(accountsToInsert);
-      
-      if (accountsError) {
-        throw new Error(`Error saving accounts: ${accountsError.message}`);
-      }
-      
-      return new Response(
-        JSON.stringify({ success: true }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
+          account_id: account.account_id,
+          name: account.name,
+          mask: account.mask,
+          type: account.type,
+          subtype: account.subtype,
+          institution_id: null,
+          available_balance: account.balances?.available || null,
+          current_balance: account.balances?.current || null,
+          iso_currency_code: account.balances?.iso_currency_code || null
+        }));
+        
+        const { error: accountsError } = await supabase
+          .from('plaid_accounts')
+          .insert(accountsToInsert);
+        
+        if (accountsError) {
+          throw new Error(`Error saving accounts: ${accountsError.message}`);
         }
-      );
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      } catch (e) {
+        console.error("Error saving Plaid accounts:", e);
+        return new Response(
+          JSON.stringify({ error: e.message || "Failed to save accounts" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
+      }
     } else if (action === 'get_accounts') {
       const { user_id } = body;
       
       if (!user_id) {
-        throw new Error('Missing user_id parameter');
+        return new Response(
+          JSON.stringify({ error: 'Missing user_id parameter' }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
       }
       
-      const { data, error } = await supabase
-        .from('plaid_accounts')
-        .select('*')
-        .eq('user_id', user_id);
-      
-      if (error) {
-        throw new Error(`Error getting accounts: ${error.message}`);
+      try {
+        const { data, error } = await supabase
+          .from('plaid_accounts')
+          .select('*')
+          .eq('user_id', user_id);
+        
+        if (error) {
+          throw new Error(`Error getting accounts: ${error.message}`);
+        }
+        
+        return new Response(
+          JSON.stringify(data),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      } catch (e) {
+        console.error("Error retrieving Plaid accounts:", e);
+        return new Response(
+          JSON.stringify({ error: e.message || "Failed to get accounts" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400
+          }
+        );
       }
-      
+    } else {
       return new Response(
-        JSON.stringify(data),
+        JSON.stringify({ error: 'Invalid action' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200
+          status: 400
         }
       );
-    } else {
-      throw new Error('Invalid action');
     }
   } catch (error) {
     console.error("Plaid error:", error.message);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || "An unexpected error occurred" }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400
+        status: 500
       }
     );
   }

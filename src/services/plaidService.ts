@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { PlaidAccount, PlaidLinkResult } from "@/types/models";
+import { toast } from "sonner";
 
 /**
  * Create a link token for Plaid Link initialization
@@ -19,6 +20,9 @@ export const createLinkToken = async (): Promise<string> => {
     
     if (!data || !data.link_token) {
       console.error('Invalid response from Plaid link function:', data);
+      if (data && data.error) {
+        throw new Error(data.error);
+      }
       throw new Error('Invalid response from server');
     }
     
@@ -52,6 +56,11 @@ export const exchangePublicToken = async (publicToken: string): Promise<PlaidLin
       throw new Error('Invalid response from server');
     }
     
+    if (data.error) {
+      console.error('Plaid API error:', data.error);
+      throw new Error(data.error);
+    }
+    
     return data;
   } catch (error) {
     console.error('Error exchanging public token:', error);
@@ -71,7 +80,7 @@ export const savePlaidAccounts = async (
   try {
     console.log("Saving Plaid accounts...");
     // First save the item using custom RPC
-    const { data: itemData, error: itemError } = await supabase.functions.invoke('plaid-link', {
+    const { data, error } = await supabase.functions.invoke('plaid-link', {
       body: { 
         action: 'save_accounts',
         user_id: userId,
@@ -81,9 +90,14 @@ export const savePlaidAccounts = async (
       }
     });
     
-    if (itemError) {
-      console.error('Supabase function error:', itemError);
-      throw itemError;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (data && data.error) {
+      console.error('Error saving accounts:', data.error);
+      throw new Error(data.error);
     }
     
     return true;
@@ -111,7 +125,12 @@ export const getPlaidAccounts = async (userId: string) => {
       throw error;
     }
     
-    return data;
+    if (data && data.error) {
+      console.error('Error retrieving accounts:', data.error);
+      throw new Error(data.error);
+    }
+    
+    return data || [];
   } catch (error) {
     console.error('Error getting Plaid accounts:', error);
     throw error;

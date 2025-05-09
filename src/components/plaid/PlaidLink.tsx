@@ -3,9 +3,10 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Link } from 'lucide-react';
+import { Loader2, Link, RefreshCw } from 'lucide-react';
 import { createLinkToken, exchangePublicToken, savePlaidAccounts } from '@/services/plaidService';
 import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface PlaidLinkProps {
   onSuccess?: () => void;
@@ -26,7 +27,7 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
       const token = await createLinkToken();
       setLinkToken(token);
       console.log("Link token created successfully");
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error getting link token:', err);
       setError('Failed to initialize Plaid Link. Please try again.');
       toast({
@@ -75,7 +76,7 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
         if (onSuccess) {
           onSuccess();
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error in Plaid link flow:', err);
         setError('Failed to link your accounts. Please try again.');
         toast({
@@ -105,7 +106,7 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
   });
 
   return (
-    <>
+    <div className="space-y-2">
       <Button
         onClick={() => open()}
         disabled={!ready || loading || !linkToken}
@@ -118,18 +119,23 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
         )}
         Link Bank Account
       </Button>
+      
       {error && (
-        <div className="mt-2">
+        <div className="mt-2 space-y-2">
+          <Alert variant="destructive" className="py-2">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRetry} 
-            className="text-xs"
+            className="w-full"
           >
-            Retry
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Retry Connection
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }

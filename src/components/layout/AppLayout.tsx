@@ -12,7 +12,9 @@ const AppLayout = () => {
       <div className="flex flex-1">
         <AppSidebar />
         <main className="flex-1 p-4 md:p-6 overflow-auto">
-          <Outlet />
+          <React.Suspense fallback={<div>Loading...</div>}>
+            <Outlet />
+          </React.Suspense>
         </main>
       </div>
       <MobileNav />

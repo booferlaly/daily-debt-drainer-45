@@ -15,6 +15,14 @@ import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
+// Simple settings page component
+const SettingsPage = () => (
+  <div className="container mx-auto px-4 py-6">
+    <h1 className="text-3xl font-bold mb-6">Settings</h1>
+    <p>Settings page content will go here.</p>
+  </div>
+);
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -36,6 +44,8 @@ const App = () => (
                 <Route path="micropayments" element={<MicropaymentsPage />} />
                 <Route path="budget" element={<BudgetPage />} />
                 <Route path="credit" element={<CreditSimulatorPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="calendar" element={<div>Calendar Page</div>} />
               </Route>
             </Route>
             

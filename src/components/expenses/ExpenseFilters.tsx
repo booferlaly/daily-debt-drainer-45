@@ -16,9 +16,11 @@ import {
   PiggyBank, 
   CreditCard, 
   Clock, 
-  ArrowUpDown, 
   ArrowUp, 
-  ArrowDown 
+  ArrowDown,
+  Zap,
+  Film,
+  PackageOpen
 } from "lucide-react";
 
 interface ExpenseFiltersProps {
@@ -65,7 +67,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
           <SelectContent className="text-xs">
             <SelectItem value="all">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <PackageOpen className="h-3.5 w-3.5" />
                 <span>All Categories</span>
               </div>
             </SelectItem>
@@ -83,7 +85,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             </SelectItem>
             <SelectItem value="utilities">
               <div className="flex items-center gap-2">
-                <PiggyBank className="h-3.5 w-3.5" />
+                <Zap className="h-3.5 w-3.5" />
                 <span>Utilities</span>
               </div>
             </SelectItem>
@@ -95,7 +97,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             </SelectItem>
             <SelectItem value="entertainment">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <Film className="h-3.5 w-3.5" />
                 <span>Entertainment</span>
               </div>
             </SelectItem>
@@ -107,7 +109,7 @@ const ExpenseFilters: React.FC<ExpenseFiltersProps> = ({
             </SelectItem>
             <SelectItem value="other">
               <div className="flex items-center gap-2">
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <PackageOpen className="h-3.5 w-3.5" />
                 <span>Other</span>
               </div>
             </SelectItem>

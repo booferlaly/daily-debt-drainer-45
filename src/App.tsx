@@ -14,6 +14,7 @@ import CreditSimulatorPage from "./pages/CreditSimulatorPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CalendarPage from "./pages/CalendarPage";
 
 // Simple settings page component
 const SettingsPage = () => (
@@ -45,7 +46,7 @@ const App = () => (
                 <Route path="budget" element={<BudgetPage />} />
                 <Route path="credit" element={<CreditSimulatorPage />} />
                 <Route path="settings" element={<SettingsPage />} />
-                <Route path="calendar" element={<div>Calendar Page</div>} />
+                <Route path="calendar" element={<CalendarPage />} />
               </Route>
             </Route>
             

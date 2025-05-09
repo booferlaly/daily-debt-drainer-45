@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import MicroPaymentStats from '@/components/micropayments/MicroPaymentStats';
-import { CalendarClock, CreditCard, Settings, CreditCard as CardIcon } from 'lucide-react';
+import { CalendarClock, CreditCard as CardIcon, Settings } from 'lucide-react';
 import AutoPayModal from '@/components/micropayments/AutoPayModal';
+import MicroPaymentConfig from '@/components/micropayments/MicroPaymentConfig';
 
 const MicropaymentsPage = () => {
   const [showAutoPayModal, setShowAutoPayModal] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const totalDailyAmount = debts.reduce((sum, debt) => sum + (debt.micropaymentAmount || 0), 0);
   const totalMonthlyAmount = totalDailyAmount * 30;
   
@@ -49,7 +51,11 @@ const MicropaymentsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-4 sm:space-y-0">
         <h1 className="text-3xl font-bold tracking-tight">Micropayments</h1>
         <div className="flex gap-2">
-          <Button variant="outline" className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="flex gap-2" 
+            onClick={() => setShowConfigModal(true)}
+          >
             <Settings className="h-4 w-4" />
             <span>Configure</span>
           </Button>
@@ -235,6 +241,7 @@ const MicropaymentsPage = () => {
       </div>
       
       <AutoPayModal isOpen={showAutoPayModal} onClose={() => setShowAutoPayModal(false)} />
+      <MicroPaymentConfig isOpen={showConfigModal} onClose={() => setShowConfigModal(false)} />
     </div>
   );
 };

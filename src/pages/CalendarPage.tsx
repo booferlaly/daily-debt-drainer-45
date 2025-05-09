@@ -8,6 +8,7 @@ import { format, isSameDay } from "date-fns";
 import DebtDueList from "@/components/calendar/DebtDueList";
 import { Debt } from "@/types/models";
 import { calculateDueDatesForMonth } from "@/utils/dateUtils";
+import SubscribeButton from "@/components/subscription/SubscribeButton";
 
 const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -76,7 +77,10 @@ const CalendarPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6">Payment Calendar</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <h1 className="text-3xl font-bold">Payment Calendar</h1>
+        <SubscribeButton className="shrink-0" />
+      </div>
       
       <Tabs value={view} onValueChange={(v) => setView(v as "calendar" | "list")} className="mb-6">
         <TabsList>

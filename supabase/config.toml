@@ -1,1 +1,10 @@
-project_id = "nebhefqshqndvplyzjwv"
+
+nebhefqshqndvplyzjwv
+
+[functions]
+[functions.create-subscription]
+verify_jwt = true
+[functions.check-subscription]
+verify_jwt = true
+[functions.schedule-payment]
+verify_jwt = true

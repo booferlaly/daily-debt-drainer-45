@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2 } from 'lucide-react';
 
 interface ScheduleModalProps {
   isOpen: boolean;
@@ -25,16 +26,40 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [amount, setAmount] = useState('');
+  const [debtId, setDebtId] = useState('');
   const [frequency, setFrequency] = useState('once');
   const [loading, setLoading] = useState(false);
+  const [debts, setDebts] = useState([
+    { id: "1", name: "Credit Card A" },
+    { id: "2", name: "Student Loan" },
+    { id: "3", name: "Car Loan" },
+    { id: "4", name: "Personal Loan" },
+  ]);
 
   const handleSchedule = async () => {
+    if (!amount || !debtId || !selectedDate) {
+      toast({
+        title: "Missing information",
+        description: "Please fill out all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       
-      // This would connect to API in the future
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call our new Edge Function
+      const { data, error } = await supabase.functions.invoke('schedule-payment', {
+        body: {
+          debtId,
+          amount: parseFloat(amount),
+          paymentDate: selectedDate.toISOString(),
+          frequency,
+        }
+      });
+      
+      if (error) throw new Error(error.message || 'Failed to schedule payment');
       
       toast({
         title: 'Payment Scheduled',
@@ -66,6 +91,21 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="debt">Select Debt</Label>
+            <Select value={debtId} onValueChange={setDebtId}>
+              <SelectTrigger id="debt">
+                <SelectValue placeholder="Select debt" />
+              </SelectTrigger>
+              <SelectContent>
+                {debts.map((debt) => (
+                  <SelectItem key={debt.id} value={debt.id}>
+                    {debt.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="date">Payment Date</Label>
             <Calendar
@@ -106,7 +146,13 @@ const ScheduleModal = ({ isOpen, onClose }: ScheduleModalProps) => {
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="button" onClick={handleSchedule} disabled={loading || !amount}>
+          <Button 
+            type="button" 
+            onClick={handleSchedule} 
+            disabled={loading || !amount || !debtId}
+            className="gap-2"
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             {loading ? 'Scheduling...' : 'Schedule Payment'}
           </Button>
         </DialogFooter>

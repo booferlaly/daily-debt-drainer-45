@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { format, getDaysInMonth, isSameDay } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import DebtDueList from "@/components/calendar/DebtDueList";
 import { Debt } from "@/types/models";
 import { calculateDueDatesForMonth } from "@/utils/dateUtils";
@@ -83,100 +83,100 @@ const CalendarPage = () => {
           <TabsTrigger value="calendar">Calendar View</TabsTrigger>
           <TabsTrigger value="list">List View</TabsTrigger>
         </TabsList>
-      </Tabs>
-      
-      <TabsContent value="calendar" className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="md:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>{format(currentDate, 'MMMM yyyy')}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleDateSelect}
-                month={currentDate}
-                onMonthChange={setCurrentDate}
-                showOutsideDays
-                className="rounded-md border mx-auto"
-                modifiers={{
-                  dueDate: (date) => isDueDate(date),
-                }}
-                modifiersClassNames={{
-                  dueDate: "bg-red-100 text-red-800 font-semibold",
-                }}
-                components={{
-                  DayContent: ({ date }) => {
-                    const matchingDueDates = dueDates.filter(dueDate => 
-                      isSameDay(dueDate.date, date)
-                    );
-                    
-                    return (
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        <span>{date.getDate()}</span>
-                        {matchingDueDates.length > 0 && (
-                          <span className="absolute top-0 right-0 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                          </span>
-                        )}
-                      </div>
-                    );
-                  }
-                }}
-              />
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedDate 
-                  ? `Due on ${format(selectedDate, 'MMMM d, yyyy')}` 
-                  : 'Select a date'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedDate ? (
-                debtsForSelectedDate.length > 0 ? (
-                  <div className="space-y-4">
-                    {debtsForSelectedDate.map(debt => (
-                      <div key={debt.id} className="p-3 border rounded-md">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h3 className="font-medium">{debt.name}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Minimum Payment: ${debt.minPayment.toFixed(2)}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="bg-red-50 text-red-800 hover:bg-red-100">
-                            Due Today
-                          </Badge>
+        
+        <TabsContent value="calendar" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  <span>{format(currentDate, 'MMMM yyyy')}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  month={currentDate}
+                  onMonthChange={setCurrentDate}
+                  showOutsideDays
+                  className="rounded-md border mx-auto"
+                  modifiers={{
+                    dueDate: (date) => isDueDate(date),
+                  }}
+                  modifiersClassNames={{
+                    dueDate: "bg-red-100 text-red-800 font-semibold",
+                  }}
+                  components={{
+                    DayContent: ({ date }) => {
+                      const matchingDueDates = dueDates.filter(dueDate => 
+                        isSameDay(dueDate.date, date)
+                      );
+                      
+                      return (
+                        <div className="relative w-full h-full flex items-center justify-center">
+                          <span>{date.getDate()}</span>
+                          {matchingDueDates.length > 0 && (
+                            <span className="absolute top-0 right-0 flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                            </span>
+                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      );
+                    }
+                  }}
+                />
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {selectedDate 
+                    ? `Due on ${format(selectedDate, 'MMMM d, yyyy')}` 
+                    : 'Select a date'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {selectedDate ? (
+                  debtsForSelectedDate.length > 0 ? (
+                    <div className="space-y-4">
+                      {debtsForSelectedDate.map(debt => (
+                        <div key={debt.id} className="p-3 border rounded-md">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="font-medium">{debt.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Minimum Payment: ${debt.minPayment.toFixed(2)}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="bg-red-50 text-red-800 hover:bg-red-100">
+                              Due Today
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 text-muted-foreground">
+                      No payments due on this date
+                    </div>
+                  )
                 ) : (
                   <div className="text-center py-6 text-muted-foreground">
-                    No payments due on this date
+                    Select a date to view due payments
                   </div>
-                )
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  Select a date to view due payments
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="list" className="space-y-6">
-        <DebtDueList debts={debts} currentMonth={currentDate} />
-      </TabsContent>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="list" className="space-y-6">
+          <DebtDueList debts={debts} currentMonth={currentDate} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

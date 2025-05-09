@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format, getDaysInMonth, isToday, isFuture, isPast, addDays } from "date-fns";
+import { format, isToday, isFuture, isPast, addDays } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Debt } from "@/types/models";
 import { CreditCard, FileText, Wallet } from "lucide-react";

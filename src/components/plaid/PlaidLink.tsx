@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState, useEffect } from 'react';
 import { usePlaidLink } from 'react-plaid-link';
 import { Button } from '@/components/ui/button';
@@ -24,15 +23,21 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
     try {
       setLoading(true);
       setError(null);
-      const token = await createLinkToken();
-      setLinkToken(token);
+      const response = await createLinkToken();
+      
+      if (!response || !response.link_token) {
+        throw new Error(response?.error || 'Failed to create link token');
+      }
+      
+      setLinkToken(response.link_token);
       console.log("Link token created successfully");
     } catch (err: any) {
-      console.error('Error getting link token:', err);
-      setError('Failed to initialize Plaid Link. Please try again.');
+      const errorMessage = err.details?.error_message || err.message || 'Failed to initialize Plaid Link';
+      console.error('Error getting link token:', errorMessage, err.details || {});
+      setError(`Failed to initialize Plaid Link: ${errorMessage}`);
       toast({
         title: 'Error',
-        description: 'Failed to initialize Plaid Link. Please try again.',
+        description: `Failed to initialize Plaid Link: ${errorMessage}`,
         variant: 'destructive',
       });
     } finally {
@@ -52,6 +57,10 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
 
         // Process the public token
         const result = await exchangePublicToken(publicToken);
+        
+        if (!result || result.error) {
+          throw new Error(result?.error || 'Failed to exchange public token');
+        }
 
         // Get the current user
         const { data: { user } } = await supabase.auth.getUser();
@@ -77,11 +86,12 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
           onSuccess();
         }
       } catch (err: any) {
-        console.error('Error in Plaid link flow:', err);
-        setError('Failed to link your accounts. Please try again.');
+        const errorMessage = err.details?.error_message || err.message || 'Failed to link accounts';
+        console.error('Error in Plaid link flow:', errorMessage, err.details || {});
+        setError(`Failed to link your accounts: ${errorMessage}`);
         toast({
           title: 'Error',
-          description: 'Failed to link your accounts. Please try again.',
+          description: `Failed to link your accounts: ${errorMessage}`,
           variant: 'destructive',
         });
       } finally {
@@ -101,6 +111,7 @@ export function PlaidLink({ onSuccess, className }: PlaidLinkProps) {
     onExit: (err, metadata) => {
       if (err) {
         console.error('Plaid Link exit error:', err, metadata);
+        setError(`Link process exited: ${err.message || 'Unknown error'}`);
       }
     },
   });

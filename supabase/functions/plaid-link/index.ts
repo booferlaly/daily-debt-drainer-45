@@ -23,9 +23,11 @@ serve(async (req) => {
     const secret = Deno.env.get("PLAID_SECRET");
     
     if (!clientId || !secret) {
-      console.error("Missing Plaid credentials");
+      console.error("Missing Plaid credentials - PLAID_CLIENT_ID or PLAID_SECRET not set");
       return new Response(
-        JSON.stringify({ error: "Missing Plaid API credentials" }),
+        JSON.stringify({ 
+          error: "Missing Plaid API credentials. Please ensure PLAID_CLIENT_ID and PLAID_SECRET are set in the environment variables." 
+        }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 400
@@ -48,8 +50,20 @@ serve(async (req) => {
     const plaidClient = new PlaidApi(configuration);
     
     // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error("Missing Supabase credentials");
+      return new Response(
+        JSON.stringify({ error: "Missing Supabase credentials" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
+    }
+
     const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Handle different actions
@@ -59,13 +73,18 @@ serve(async (req) => {
         // Create link token
         const createTokenResponse = await plaidClient.linkTokenCreate({
           user: {
-            client_user_id: crypto.randomUUID(), // Use a unique ID for the user
+            client_user_id: crypto.randomUUID(),
           },
           client_name: 'Debt Micropayment App',
           products: ['auth', 'transactions'],
           country_codes: ['US'],
           language: 'en',
         });
+        
+        if (!createTokenResponse.data || !createTokenResponse.data.link_token) {
+          console.error("Invalid response from Plaid:", createTokenResponse);
+          throw new Error("Failed to create link token: Invalid response from Plaid");
+        }
         
         console.log("Link token created successfully");
         
@@ -78,8 +97,12 @@ serve(async (req) => {
         );
       } catch (e) {
         console.error("Error creating Plaid link token:", e);
+        const errorMessage = e.response?.data?.error_message || e.message || "Failed to create Plaid link token";
         return new Response(
-          JSON.stringify({ error: e.message || "Failed to create Plaid link token" }),
+          JSON.stringify({ 
+            error: errorMessage,
+            details: e.response?.data || {}
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 400
@@ -127,8 +150,12 @@ serve(async (req) => {
         );
       } catch (e) {
         console.error("Error exchanging Plaid token:", e);
+        const errorMessage = e.response?.data?.error_message || e.message || "Failed to exchange public token";
         return new Response(
-          JSON.stringify({ error: e.message || "Failed to exchange public token" }),
+          JSON.stringify({ 
+            error: errorMessage,
+            details: e.response?.data || {}
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 400
@@ -254,7 +281,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("Plaid error:", error.message);
     return new Response(
-      JSON.stringify({ error: error.message || "An unexpected error occurred" }),
+      JSON.stringify({ 
+        error: error.message || "An unexpected error occurred",
+        details: error.response?.data || {}
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500

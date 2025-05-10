@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { PlaidAccount, PlaidLinkResult } from "@/types/models";
 import { toast } from "sonner";
@@ -79,7 +78,6 @@ export const savePlaidAccounts = async (
 ) => {
   try {
     console.log("Saving Plaid accounts...");
-    // First save the item using custom RPC
     const { data, error } = await supabase.functions.invoke('plaid-link', {
       body: { 
         action: 'save_accounts',
